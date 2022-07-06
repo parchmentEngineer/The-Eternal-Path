@@ -197,53 +197,23 @@ function run_simulation() {
 }
 
 function display_preview() {
-	for (let i=0; i<13; i++) {
+	for (let i=0; i<12; i++) {
 		for (let ii=0; ii<4; ii++) {
 			for (let iii=0; iii<5; iii++) {
 				cell = data[i][ii][iii]
 				elem = document.getElementById("tile"+i+"-"+(ii+(iii*4)))
 				//elem.setAttribute("src","images/tile"+cell.value+".png")
 				elem.innerHTML = ""
-				elem.innerHTML += '<img src="images/tile'+cell.value+'.png" width="32" height="32" style="position: absolute;">'
-				if (cell.up) elem.innerHTML += '<img src="images/tile'+cell.value+'-up.png" width="32" height="32" style="position: absolute;">'
-				if (cell.down) elem.innerHTML += '<img src="images/tile'+cell.value+'-down.png" width="32" height="32" style="position: absolute;">'
-				if (cell.left) elem.innerHTML += '<img src="images/tile'+cell.value+'-left.png" width="32" height="32" style="position: absolute;">'
-				if (cell.right) elem.innerHTML += '<img src="images/tile'+cell.value+'-right.png" width="32" height="32" style="position: absolute;">'
+				elem.innerHTML += '<img src="images/tile0.png" width="28" height="28" style="position: absolute;">'
+				elem.innerHTML += '<img src="images/tile'+cell.value+'.png" width="28" height="28" style="position: absolute;">'
+				if (cell.up) elem.innerHTML += '<img src="images/tile'+cell.value+'-up.png" width="28" height="28" style="position: absolute;">'
+				if (cell.down) elem.innerHTML += '<img src="images/tile'+cell.value+'-down.png" width="28" height="28" style="position: absolute;">'
+				if (cell.left) elem.innerHTML += '<img src="images/tile'+cell.value+'-left.png" width="28" height="28" style="position: absolute;">'
+				if (cell.right) elem.innerHTML += '<img src="images/tile'+cell.value+'-right.png" width="28" height="28" style="position: absolute;">'
 			}
 		}
 	}
 }
-
-data = [] 
-console.log(data)
-for (let i=0; i<13; i++) {
-	data[i] = []
-	for (let ii=0; ii<4; ii++) {
-		data[i][ii] = []
-		for (let iii=0; iii<5; iii++) {
-			data[i][ii][iii] = new Cell(0)
-		}
-	}
-}
-console.log(data)
-
-let elem = document.getElementById("previewer")
-for (let i=0; i<13; i++) {
-	elem.innerHTML += '<div class="board" id="board'+i+'"></div>'
-	let elem2 = document.getElementById("board"+i)
-	for (let ii=0; ii<20; ii++) {
-		elem2.innerHTML += '<div id="tile'+i+'-'+ii+'"></div>'
-	}
-}
-elem.innerHTML += '<textarea id="code" name="code"></textarea><input class="button" type="submit" value="Run Code", onclick="run_code()">'
-elem.innerHTML += `<div>
-	<textarea id="level" name="level"></textarea>
-	<textarea id="x" name="x" class="coord" placeholder = "X Start"></textarea>
-	<textarea id="y" name="y" class="coord" placeholder = "Y Start"></textarea>
-	<input class="button" type="submit" value="Load Level", onclick="load_level()">
-</div>
-<a href="https://docs.google.com/document/d/1R7b92ZDg1qZC6B8daDcjF0BnKJQWcduvcIe8eD7h9Rs/edit?usp=sharing">Help</a>`
-
 
 function add_gene(target, neighbor, neighbordir, effect, effectdir) {
 	genes.push(new Gene(target, neighbor, neighbordir, effect, effectdir))
@@ -313,8 +283,44 @@ function get_dir(cha) {
 	if (cha == "R") return "right"
 }
 
+function selectGene(num) {
+	if (selectedGene != -1) {
+		document.getElementById("geneSelector"+selectedGene).classList.remove("geneSelected")
+	}
+	document.getElementById("geneSelector"+num).classList.add("geneSelected")
+	selectedGene = num
+}
+
+data = [] 
+console.log(data)
+for (let i=0; i<13; i++) {
+	data[i] = []
+	for (let ii=0; ii<4; ii++) {
+		data[i][ii] = []
+		for (let iii=0; iii<5; iii++) {
+			data[i][ii][iii] = new Cell(0)
+		}
+	}
+}
+console.log(data)
+
+let elem = document.getElementById("previewer")
+for (let i=0; i<12; i++) {
+	elem.innerHTML += '<div class="board" id="board'+i+'"></div>'
+	let elem2 = document.getElementById("board"+i)
+	for (let ii=0; ii<20; ii++) {
+		elem2.innerHTML += '<div id="tile'+i+'-'+ii+'"></div>'
+	}
+}
+selX = [12 , 69 , 123, 180, 234, 291, 345, 402, 456, 513, 567, 624, 678, 735, 789, 846]
+selY = [355, 484, 355, 484, 355, 484, 355, 484, 355, 484, 355, 484, 355, 484, 355, 484]
+for (let i=0; i<16; i++) {
+	elem.innerHTML += '<div class="geneSelector" id="geneSelector'+i+'" style="top: '+selY[i]+'px; left: '+selX[i]+'px;" onClick="selectGene('+i+')"></div>'
+}
+
 nameString = "XXX0B0B1F0F16677889900MT"
 genes = []
+selectedGene = -1
 
 /*/ The Worm
 

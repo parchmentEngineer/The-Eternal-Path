@@ -4,9 +4,18 @@
 		<link rel="stylesheet" href="styles.css">
 	</head>
 	<body>
-		<h1>X'BPGH - The Eternal Path</h1>
-		<div class="preview" id="previewer">
+		<div class="preview" id="previewer"></div>
+		
+		
+		
+		<textarea id="code" name="code"></textarea><input class="button" type="submit" value="Run Code", onclick="run_code()">
+		<div>
+			<textarea id="level" name="level"></textarea>
+			<textarea id="x" name="x" class="coord" placeholder = "X Start"></textarea>
+			<textarea id="y" name="y" class="coord" placeholder = "Y Start"></textarea>
+			<input class="button" type="submit" value="Load Level", onclick="load_level()">
 		</div>
+		<a href="https://docs.google.com/document/d/1R7b92ZDg1qZC6B8daDcjF0BnKJQWcduvcIe8eD7h9Rs/edit?usp=sharing">Help</a>
 		<script src="script.js"></script>
 	</body>
 </html>

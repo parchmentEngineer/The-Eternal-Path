@@ -1,18 +1,51 @@
 .board {
 	display: grid;
-	grid-template-columns: 32px 32px 32px 32px;
-	grid-template-rows: 32px 32px 32px 32px 32px;
-	padding: 10px;
+	grid-template-columns: 28px 28px 28px 28px;
+	grid-template-rows: 28px 28px 28px 28px 28px;
+	padding: 1px;
+	
+	margin-left: 0px;
+	
 	position: relative;
 }
 
 .preview {
 	display: grid;
-	grid-template-columns: 148px 148px 148px 148px 148px 148px;
+	
+	padding-left: 9px;
+	padding-top: 7px;
+	
+	width: 960px;
+	height: 732px;
+	
+	grid-template-columns: 119px 119px 119px 119px 119px 119px;
+	grid-template-rows: 165px 165px 165px;
+	background-image: url('images/screen.png');
+	background-repeat: no-repeat;
+	
+	position: relative;
 }
 
+
+.geneSelector {
+	position: absolute;
+	width: 100px;
+	height: 47px;
+}
+
+.geneSelector:hover {
+	background-image: url('images/selectedDouble.png');
+	background-repeat: no-repeat;
+}
+
+.geneSelected {
+	background-image: url('images/selectedDouble.png');
+	background-repeat: no-repeat;
+}
+
+
 #level {
-	width: 148px;
+	width: 112px;
 	height: 115px;
 }
 
@@ -23,8 +56,8 @@
 	display: inline-block;
 }
 
-input {
-	width: 128px;
+.button {
+	width: 112px;
 	margin: 10px;
 }
 
@@ -34,4 +67,9 @@ textarea {
 
 a {
 	margin-left:10px;
+}
+
+body {
+	background-color: black;
+	padding: 12px;
 }
