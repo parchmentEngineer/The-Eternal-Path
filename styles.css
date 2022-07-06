@@ -18,6 +18,9 @@
 	width: 960px;
 	height: 732px;
 	
+	margin: auto;
+
+	
 	grid-template-columns: 119px 119px 119px 119px 119px 119px;
 	grid-template-rows: 165px 165px 165px;
 	background-image: url('images/screen.png');
@@ -26,6 +29,11 @@
 	position: relative;
 }
 
+.imagePreview {
+	position: absolute;
+	width: 13px;
+	height: 14px;
+}
 
 .geneSelector {
 	position: absolute;
@@ -43,6 +51,87 @@
 	background-repeat: no-repeat;
 }
 
+.cellSelector {
+	position: absolute;
+	width: 32px;
+	height: 33px;
+}
+
+.cellSelector:hover {
+	background-image: url('images/selectedSmall.png');
+	background-repeat: no-repeat;
+}
+
+.cellSelected {
+	background-image: url('images/selectedSmall.png');
+	background-repeat: no-repeat;
+}
+
+.reactionSelector {
+	position: absolute;
+	width: 47px;
+	height: 47px;
+}
+
+.reactionSelector:hover {
+	background-image: url('images/selectedLarge.png');
+	background-repeat: no-repeat;
+}
+
+.reactionSelected {
+	background-image: url('images/selectedLarge.png');
+	background-repeat: no-repeat;
+}
+
+.moveArrowRight {
+	position: absolute;
+	width: 11px;
+	height: 11px;
+}
+
+.moveArrowRight:hover {
+	background-image: url('images/move-right.png');
+	background-repeat: no-repeat;
+}
+
+.moveArrowLeft {
+	position: absolute;
+	width: 11px;
+	height: 11px;
+}
+
+.moveArrowLeft:hover {
+	background-image: url('images/move-left.png');
+	background-repeat: no-repeat;
+}
+
+.import:hover {
+	background-image: url('images/import.png');
+	background-repeat: no-repeat;
+}
+
+#neighbor {
+	width: 43px;
+	height: 43px;
+	left: 62px;
+	top: 674px;
+	position: absolute;
+	background-image: url('images/neighbor.png');
+	background-repeat: no-repeat;
+}
+
+.neighborArr {
+	width: 15px;
+	height: 15px;
+	position: absolute;
+	opacity: 0;
+}
+
+.arrow {
+	width: 28px;
+	height: 28px;
+	position: absolute;
+}
 
 #level {
 	width: 112px;

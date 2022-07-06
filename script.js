@@ -1,22 +1,4 @@
-class Gene {
-	constructor(target, neighbor, neighbordir, effect, effectdir) {
-		this.target = target
-		this.neighbor = neighbor // -1 = ignore, -2 = any
-		this.neighbordir = neighbordir
-		this.effect = effect // -1 = delete, -2 = bond
-		this.effectdir = effectdir
-	}
-}
 
-class Cell {
-	constructor(value) {
-		this.value = value
-		this.up = false
-		this.down = false
-		this.left = false
-		this.right = false
-	}
-}
 
 function letterToHex(letter) {
 	if (letter=="A") return 10
@@ -60,12 +42,20 @@ function decodeSolution(sol) {
 			data[0][(i/6)%4][Math.floor((i/6)/4)].right = false
 		}
 	}
-	x = document.getElementById("x").value
-	y = document.getElementById("y").value
-	if (x=='') x=0
-	if (y=='') y=0
-	if (data[0][x][y].value == 0) {
-		data[0][x][y].value = 1
+	
+	while(data[0][startX][startY].value != 0) {
+		startX += 1
+		if (startX > 3) {
+			startX = 0
+			startY += 1
+		}
+		if (startY > 4) {
+			startY = 0
+		}
+	}
+	console.log("Start: "+startX+" "+startY)
+	if (data[0][startX][startY].value == 0) {
+		data[0][startX][startY].value = 1
 	}
 }
 
@@ -120,6 +110,9 @@ function update_next(board,x,y,dir,value) {
 		return false
 	} else {
 		if(get_cell(board+1, x, y, "none") == 0 || dir == "replace" || dir == "firstReplace" || (value == -2 && get_cell(board+1, x, y, "none") != 11)) {
+			if (value == -2 && get_cell(board+1, x, y, "none") <= 0) {
+				return false
+			}
 			if (value != -2) {
 				data[board+1][x][y].value = value
 			}
@@ -181,7 +174,7 @@ function run_simulation() {
 					gene = genes[ii]
 					if (get_cell(i,x,y,"none") == gene.target) {
 						neighborval = get_cell(i,x,y,gene.neighbordir)
-						if (neighborval == -1) neighborval = 0
+						if (neighborval == 0) neighborval = -1
 						if (neighborval == gene.neighbor || gene.neighbordir == "none" || (neighborval > 0 && gene.neighbor == -2)) {
 							success = update_next(i,x,y,gene.effectdir,gene.effect)
 							if (success == true) {
@@ -197,26 +190,180 @@ function run_simulation() {
 }
 
 function display_preview() {
-	for (let i=0; i<12; i++) {
+	for (let i=0; i<13; i++) {
 		for (let ii=0; ii<4; ii++) {
 			for (let iii=0; iii<5; iii++) {
 				cell = data[i][ii][iii]
 				elem = document.getElementById("tile"+i+"-"+(ii+(iii*4)))
 				//elem.setAttribute("src","images/tile"+cell.value+".png")
 				elem.innerHTML = ""
-				elem.innerHTML += '<img src="images/tile0.png" width="28" height="28" style="position: absolute;">'
+				//elem.innerHTML += '<img src="images/tile0.png" width="28" height="28" style="position: absolute;">'
 				elem.innerHTML += '<img src="images/tile'+cell.value+'.png" width="28" height="28" style="position: absolute;">'
+				
 				if (cell.up) elem.innerHTML += '<img src="images/tile'+cell.value+'-up.png" width="28" height="28" style="position: absolute;">'
 				if (cell.down) elem.innerHTML += '<img src="images/tile'+cell.value+'-down.png" width="28" height="28" style="position: absolute;">'
 				if (cell.left) elem.innerHTML += '<img src="images/tile'+cell.value+'-left.png" width="28" height="28" style="position: absolute;">'
 				if (cell.right) elem.innerHTML += '<img src="images/tile'+cell.value+'-right.png" width="28" height="28" style="position: absolute;">'
+				
+				if (cell.value == 11) elem.innerHTML += '<img src="images/metalDecalT.png" width="48" height="48" style="position: relative; top: -10px; left: -10px;">'
 			}
+		}
+	}
+	formatArrow("arrow-up",0,-1,startY <= 0)
+	formatArrow("arrow-down",0,1,startY >= 4)
+	formatArrow("arrow-left",-1,0, startX <= 0)
+	formatArrow("arrow-right",1,0, startX >= 3)
+	
+	document.getElementById("geneTarget").innerHTML = ""
+	document.getElementById("geneReaction").innerHTML = ""
+	document.getElementById("nothing").innerHTML = ""
+	for (let i=0; i<16; i++) {
+		displayGenePreview(i)
+	}
+}
+
+function displayGenePreview(i) {
+	if (genes.length > i) {
+		gene = genes[i]
+		elem = document.getElementById("geneSelector"+i)
+		if (selectedGene == i) {
+			elemTarget = document.getElementById("geneTarget")
+			elemReaction = document.getElementById("geneReaction")
+			displayReactionIcons(gene)
+		} else {
+			elemTarget = document.getElementById("nothing")
+			elemReaction = document.getElementById("nothing")
+		}
+		elem.innerHTML = ""
+		gene = genes[i]
+		x = 0;
+		y = 0;
+		if (gene.effectdir == "up") y = -1;
+		if (gene.effectdir == "down") y = 1;
+		if (gene.effectdir == "left") x = -1;
+		if (gene.effectdir == "right") x = 1;
+		
+		if (gene.target != 0) {
+			elem.innerHTML += '<img src="images/tile'+gene.target+'-preview.png" class="imagePreview" style="left: '+17+'px; top: '+16+'px;">'
+			elemTarget.innerHTML += '<img src="images/tile'+gene.target+'.png" class="arrow" style="left: '+28+'px; top: '+28+'px;">'
+		}
+		
+		if (gene.neighbordir != "none") {
+			nx = 0;
+			ny = 0;
+			if (gene.neighbordir == "up") ny = -1;
+			if (gene.neighbordir == "down") ny = 1;
+			if (gene.neighbordir == "left") nx = -1;
+			if (gene.neighbordir == "right") nx = 1;
+			elem.innerHTML += '<img src="images/tile'+gene.neighbor+'-preview.png" class="imagePreview" style="left: '+(17+(15*nx))+'px; top: '+(16+(15*ny))+'px;">'
+			elemTarget.innerHTML += '<img src="images/tile'+gene.neighbor+'.png" class="arrow" style="left: '+(28+(28*nx))+'px; top: '+(28+(28*ny))+'px;">'
+			if (gene.neighbor == -1) {
+				elemTarget.innerHTML += '<img src="images/tile-1-icon.png" class="arrow" style="left: '+(28+(28*nx))+'px; top: '+(28+(28*ny))+'px;">'
+			}
+			if (nx != x || ny != y) {
+				elem.innerHTML += '<img src="images/tile'+gene.neighbor+'-preview.png" class="imagePreview" style="left: '+(70+(15*nx))+'px; top: '+(16+(15*ny))+'px;">'
+				elemReaction.innerHTML += '<img src="images/tile'+gene.neighbor+'.png" class="arrow" style="left: '+(28+(28*nx))+'px; top: '+(28+(28*ny))+'px;">'
+				if (gene.neighbor == -1) {
+					elemReaction.innerHTML += '<img src="images/tile-1-icon.png" class="arrow" style="left: '+(28+(28*nx))+'px; top: '+(28+(28*ny))+'px;">'
+				}
+			}
+		}
+		
+		if (gene.effect == 0) {
+			
+		} else if (gene.effect == gene.target || gene.effect == -2) {
+			elem.innerHTML += '<img src="images/tile'+gene.target+'-preview.png" class="imagePreview" style="left: '+70+'px; top: '+16+'px;">'
+			elem.innerHTML += '<img src="images/tile'+gene.effect+'-preview.png" class="imagePreview" style="left: '+(70+(15*x))+'px; top: '+(16+(15*y))+'px;">'
+			elemReaction.innerHTML += '<img src="images/tile'+gene.target+'.png" class="arrow" style="left: '+28+'px; top: '+28+'px;">'
+			elemReaction.innerHTML += '<img src="images/tile'+gene.effect+'.png" class="arrow" style="left: '+(28+(28*x))+'px; top: '+(28+(28*y))+'px;">'
+		} else {
+			elem.innerHTML += '<img src="images/tile'+gene.effect+'-preview.png" class="imagePreview" style="left: '+70+'px; top: '+16+'px;">'
+			elemReaction.innerHTML += '<img src="images/tile'+gene.effect+'.png" class="arrow" style="left: '+28+'px; top: '+28+'px;">'
 		}
 	}
 }
 
-function add_gene(target, neighbor, neighbordir, effect, effectdir) {
-	genes.push(new Gene(target, neighbor, neighbordir, effect, effectdir))
+function displayReactionIcons(gene) {
+	for (let ii=0; ii<19; ii++) {
+		reaction = reactSelName[ii]
+		reactElem = document.getElementById("reactionSelector-"+reaction)
+		reactElem.innerHTML = ""
+		if (gene.target != 0) {
+			if (gene.neighbordir == "up" && (reaction != "divide-up" || reaction != "fuse-up")) {
+				reactElem.innerHTML += '<img src="images/tile'+gene.neighbor+'-preview.png" class="imagePreview" style="left: '+16+'px; top: '+2+'px;">'
+			}
+			if (gene.neighbordir == "down" && (reaction != "divide-down" || reaction != "fuse-down")) {
+				reactElem.innerHTML += '<img src="images/tile'+gene.neighbor+'-preview.png" class="imagePreview" style="left: '+16+'px; top: '+30+'px;">'
+			}
+			if (gene.neighbordir == "left" && (reaction != "divide-left" || reaction != "fuse-left")) {
+				reactElem.innerHTML += '<img src="images/tile'+gene.neighbor+'-preview.png" class="imagePreview" style="left: '+2+'px; top: '+16+'px;">'
+			}
+			if (gene.neighbordir == "right" && (reaction != "divide-right" || reaction != "fuse-right")) {
+				reactElem.innerHTML += '<img src="images/tile'+gene.neighbor+'-preview.png" class="imagePreview" style="left: '+30+'px; top: '+16+'px;">'
+			}
+			
+			if (reaction == "ignore") {
+				reactElem.innerHTML += '<img src="images/tile'+gene.target+'-preview.png" class="imagePreview" style="left: '+16+'px; top: '+16+'px;">'
+			} else if (reaction == "divide-up") {
+				reactElem.innerHTML += '<img src="images/tile'+gene.target+'-preview.png" class="imagePreview" style="left: '+16+'px; top: '+16+'px;">'
+				reactElem.innerHTML += '<img src="images/tile'+gene.target+'-preview.png" class="imagePreview" style="left: '+16+'px; top: '+2+'px;">'
+			} else if (reaction == "divide-down") {
+				reactElem.innerHTML += '<img src="images/tile'+gene.target+'-preview.png" class="imagePreview" style="left: '+16+'px; top: '+16+'px;">'
+				reactElem.innerHTML += '<img src="images/tile'+gene.target+'-preview.png" class="imagePreview" style="left: '+16+'px; top: '+30+'px;">'
+			} else if (reaction == "divide-left") {
+				reactElem.innerHTML += '<img src="images/tile'+gene.target+'-preview.png" class="imagePreview" style="left: '+16+'px; top: '+16+'px;">'
+				reactElem.innerHTML += '<img src="images/tile'+gene.target+'-preview.png" class="imagePreview" style="left: '+2+'px; top: '+16+'px;">'
+			} else if (reaction == "divide-right") {
+				reactElem.innerHTML += '<img src="images/tile'+gene.target+'-preview.png" class="imagePreview" style="left: '+16+'px; top: '+16+'px;">'
+				reactElem.innerHTML += '<img src="images/tile'+gene.target+'-preview.png" class="imagePreview" style="left: '+30+'px; top: '+16+'px;">'
+			} else if (reaction == "die") {
+				// Replace this with full code for the various sprites
+				reactElem.innerHTML += '<img src="images/tile-1-preview.png" class="imagePreview" style="left: '+16+'px; top: '+16+'px;">'
+			} else if (reaction == "fuse-up") {
+				reactElem.innerHTML += '<img src="images/tile'+gene.target+'-preview.png" class="imagePreview" style="left: '+16+'px; top: '+16+'px;">'
+				reactElem.innerHTML += '<img src="images/tile-2-preview.png" class="imagePreview" style="left: '+16+'px; top: '+2+'px;">'
+			} else if (reaction == "fuse-down") {
+				reactElem.innerHTML += '<img src="images/tile'+gene.target+'-preview.png" class="imagePreview" style="left: '+16+'px; top: '+16+'px;">'
+				reactElem.innerHTML += '<img src="images/tile-2-preview.png" class="imagePreview" style="left: '+16+'px; top: '+30+'px;">'
+			} else if (reaction == "fuse-left") {
+				reactElem.innerHTML += '<img src="images/tile'+gene.target+'-preview.png" class="imagePreview" style="left: '+16+'px; top: '+16+'px;">'
+				reactElem.innerHTML += '<img src="images/tile-2-preview.png" class="imagePreview" style="left: '+2+'px; top: '+16+'px;">'
+			} else if (reaction == "fuse-right") {
+				reactElem.innerHTML += '<img src="images/tile'+gene.target+'-preview.png" class="imagePreview" style="left: '+16+'px; top: '+16+'px;">'
+				reactElem.innerHTML += '<img src="images/tile-2-preview.png" class="imagePreview" style="left: '+30+'px; top: '+16+'px;">'
+			} else {
+				reaction = parseInt(reaction)
+				reactElem.innerHTML += '<img src="images/tile'+reaction+'-preview.png" class="imagePreview" style="left: '+16+'px; top: '+16+'px;">'
+				valid = true
+				if (reaction == 2 && gene.target != 1) valid = false
+				if (reaction == 3 && gene.target != 2) valid = false
+				if (reaction == 4 && gene.target != 1) valid = false
+				if (reaction == 5 && gene.target != 4) valid = false
+				if (reaction == 6 && gene.target != 4) valid = false
+				if (reaction == 7 && gene.target != 4) valid = false
+				if (reaction == 8 && gene.target != 1) valid = false
+				if (reaction == 9 && gene.target != 8) valid = false
+				if (reaction == 10 && gene.target != 8) valid = false
+				if (valid == false) {
+					reactElem.innerHTML += '<img src="images/selectedCover.png" style="left: 0px; top: 0px; position: absolute">'
+				}
+			}
+		} else if (reaction != "ignore") {
+			reactElem.innerHTML += '<img src="images/selectedCover.png" style="left: 0px; top: 0px; position: absolute">'
+		}
+	}
+}
+
+function formatArrow(name,x,y,cond) {
+	arrow = document.getElementById(name)
+	arrow.style.top = (28*(startY+y))+8
+	arrow.style.left = (28*(startX+x))+11
+	if (cond || data[0][startX+x][startY+y].value == 11) {arrow.style.display = "none"}
+	else {arrow.style.display = "block"}
+}
+
+function add_gene(target, neighbor, neighbordir, effect, effectdir, reaction) {
+	genes.push(new Gene(target, neighbor, neighbordir, effect, effectdir, reaction))
 }
 
 function run_code() {
@@ -285,162 +432,193 @@ function get_dir(cha) {
 
 function selectGene(num) {
 	if (selectedGene != -1) {
+		setNeighborDir("none")
 		document.getElementById("geneSelector"+selectedGene).classList.remove("geneSelected")
+		gene = genes[selectedGene]
+		document.getElementById("cellSelector"+gene.target).classList.remove("cellSelected")
+		document.getElementById("reactionSelector-"+gene.reaction).classList.remove("reactionSelected")
 	}
 	document.getElementById("geneSelector"+num).classList.add("geneSelected")
 	selectedGene = num
+	
+	gene = genes[num]
+	document.getElementById("cellSelector"+gene.target).classList.add("cellSelected")
+	console.log(gene.reaction)
+	document.getElementById("reactionSelector-"+gene.reaction).classList.add("reactionSelected")
+	
+	display_preview();
 }
 
-data = [] 
-console.log(data)
-for (let i=0; i<13; i++) {
-	data[i] = []
-	for (let ii=0; ii<4; ii++) {
-		data[i][ii] = []
-		for (let iii=0; iii<5; iii++) {
-			data[i][ii][iii] = new Cell(0)
+function selectTargetCell(num) {
+	gene = genes[selectedGene]
+	
+	if (selectedNeighborDir == "none") {
+		document.getElementById("cellSelector"+gene.target).classList.remove("cellSelected")
+		if (gene.target == gene.effect && gene.effect != -1) {
+			gene.effect = num;
+		}
+		gene.target = num;
+		document.getElementById("cellSelector"+gene.target).classList.add("cellSelected")
+		
+		if (gene.target == 0) {
+			gene.neighbor = 0
+			gene.neighbordir = "none"
+			selectReaction("ignore")
+		}
+	} else if(gene.target != 0) {
+		document.getElementById("cellSelector0").classList.remove("cellSelected")
+		document.getElementById("cellSelector"+gene.neighbor).classList.remove("cellSelected")
+		gene.neighbor = num
+		gene.neighbordir = selectedNeighborDir
+		if (num == 0) {
+			gene.neighbordir = "none"
+		}
+		document.getElementById("cellSelector"+gene.neighbor).classList.add("cellSelected")
+	}
+	
+	run_simulation()
+	display_preview()
+}
+
+function selectReaction(reaction) {
+	gene = genes[selectedGene]
+	document.getElementById("reactionSelector-"+gene.reaction).classList.remove("reactionSelected")
+	pastReaction = gene.reaction
+	gene.reaction = reaction
+	if (reaction == "ignore" || gene.target == 0) {
+		gene.effect = gene.target
+		gene.effectdir = "none"
+		gene.reaction = "ignore"
+	} else if (reaction == "divide-up") {
+		gene.effect = gene.target
+		gene.effectdir = "up"
+	} else if (reaction == "divide-down") {
+		gene.effect = gene.target
+		gene.effectdir = "down"
+	} else if (reaction == "divide-left") {
+		gene.effect = gene.target
+		gene.effectdir = "left"
+	} else if (reaction == "divide-right") {
+		gene.effect = gene.target
+		gene.effectdir = "right"
+	} else if (reaction == "die") {
+		gene.effect = -1
+		gene.effectdir = "firstReplace"
+	} else if (reaction == "fuse-up") {
+		gene.effect = -2
+		gene.effectdir = "up"
+	} else if (reaction == "fuse-down") {
+		gene.effect = -2
+		gene.effectdir = "down"
+	} else if (reaction == "fuse-left") {
+		gene.effect = -2
+		gene.effectdir = "left"
+	} else if (reaction == "fuse-right") {
+		gene.effect = -2
+		gene.effectdir = "right"
+	} else {
+		valid = true
+		if (reaction == 2 && gene.target != 1) valid = false
+		if (reaction == 3 && gene.target != 2) valid = false
+		if (reaction == 4 && gene.target != 1) valid = false
+		if (reaction == 5 && gene.target != 4) valid = false
+		if (reaction == 6 && gene.target != 4) valid = false
+		if (reaction == 7 && gene.target != 4) valid = false
+		if (reaction == 8 && gene.target != 1) valid = false
+		if (reaction == 9 && gene.target != 8) valid = false
+		if (reaction == 10 && gene.target != 8) valid = false
+		if (valid == true) {
+			gene.effect = parseInt(reaction)
+			gene.effectdir = "replace"
+		} else {
+			gene.reaction = pastReaction
 		}
 	}
+	
+	document.getElementById("reactionSelector-"+gene.reaction).classList.add("reactionSelected")
+	
+	run_simulation()
+	display_preview()
 }
-console.log(data)
 
-let elem = document.getElementById("previewer")
-for (let i=0; i<12; i++) {
-	elem.innerHTML += '<div class="board" id="board'+i+'"></div>'
-	let elem2 = document.getElementById("board"+i)
-	for (let ii=0; ii<20; ii++) {
-		elem2.innerHTML += '<div id="tile'+i+'-'+ii+'"></div>'
+function setNeighborDir(dir) {
+	gene = genes[selectedGene]
+	document.getElementById("cellSelector0").classList.remove("cellSelected")
+	if (selectedNeighborDir == "none") {
+		document.getElementById("cellSelector"+gene.target).classList.remove("cellSelected")
+	} else {
+		document.getElementById("cellSelector"+gene.neighbor).classList.remove("cellSelected")
 	}
+	document.getElementById("neighbor-"+selectedNeighborDir).style.opacity = 0;
+	
+	selectedNeighborDir = dir
+	if (selectedNeighborDir == "none") {
+		document.getElementById("cellSelector"+gene.target).classList.add("cellSelected")
+		document.getElementById("cellSelector-1").style.display = "none"
+		document.getElementById("cellSelector-2").style.display = "none"
+		document.getElementById("cellSelector11").style.display = "none"
+		document.getElementById("neighborMask").style.display = "block"
+	} else {
+		document.getElementById("cellSelector-1").style.display = "block"
+		document.getElementById("cellSelector-2").style.display = "block"
+		document.getElementById("cellSelector11").style.display = "block"
+		document.getElementById("neighborMask").style.display = "none"
+		if (selectedNeighborDir == gene.neighbordir) {
+			document.getElementById("cellSelector"+gene.neighbor).classList.add("cellSelected")
+		} else {
+			document.getElementById("cellSelector0").classList.add("cellSelected")
+		}
+	}
+	document.getElementById("neighbor-"+selectedNeighborDir).style.opacity = 1;
+	
+	display_preview()
 }
-selX = [12 , 69 , 123, 180, 234, 291, 345, 402, 456, 513, 567, 624, 678, 735, 789, 846]
-selY = [355, 484, 355, 484, 355, 484, 355, 484, 355, 484, 355, 484, 355, 484, 355, 484]
-for (let i=0; i<16; i++) {
-	elem.innerHTML += '<div class="geneSelector" id="geneSelector'+i+'" style="top: '+selY[i]+'px; left: '+selX[i]+'px;" onClick="selectGene('+i+')"></div>'
+
+function moveRight(num) {
+	selectGene(selectedGene)
+	temp = genes[num]
+	genes[num] = genes[num+1]
+	genes[num+1] = temp
+	for (let i=0; i<11; i++) {
+		document.getElementById("cellSelector"+i).classList.remove("cellSelected")
+	}
+	for (let i=0; i<19; i++) {
+		document.getElementById("reactionSelector-"+reactSelName[i]).classList.remove("reactionSelected")
+	}
+	selectGene(selectedGene)
+	run_simulation()
+	display_preview()
 }
 
-nameString = "XXX0B0B1F0F16677889900MT"
-genes = []
-selectedGene = -1
+function moveLeft(num) {
+	selectGene(selectedGene)
+	temp = genes[num]
+	genes[num] = genes[num-1]
+	genes[num-1] = temp
+	for (let i=0; i<11; i++) {
+		document.getElementById("cellSelector"+i).classList.remove("cellSelected")
+	}
+	for (let i=0; i<19; i++) {
+		document.getElementById("reactionSelector-"+reactSelName[i]).classList.remove("reactionSelected")
+	}
+	selectGene(selectedGene)
+	run_simulation()
+	display_preview()
+}
 
-/*/ The Worm
+function moveStart(y,x) {
+	startX += x
+	startY += y
+	decodeSolution(levelCode)
+	run_simulation()
+	display_preview()
+}
 
-gene(1, 11, "up", 1, "right")
-gene(1, -1, "none", 1, "left")
-gene(1, 1, "down", 4, "replace")
-gene(1, 0, "right", 1, "up")
-gene(1, 0, "left", 1, "down")
-gene(1, 0, "left", 1, "up")
-gene(1, 4, "right", 4, "replace")
-gene(1, 4, "left", 4, "replace")
-gene(1, 4, "down", 4, "replace")
-gene(1, 11, "right", 4, "replace")
-gene(4, 11, "right", 5, "replace")
-
-data[0][3][3].value = 1
-data[0][1][4].value = 11
-data[0][2][4].value = 11
-data[0][3][4].value = 11
-data[0][0][0].value = 11
-data[0][1][0].value = 11
-data[0][2][0].value = 11
-
-decodeSolution("B0B0B0444543434A494343464543434A58B0B0B0")
-*/
-
-/*/ The Loop
-
-gene(1, -1, "none", 1, "right")
-gene(1, -1, "none", 1, "down")
-gene(1, -1, "none", -2, "left")
-gene(1, 4, "up", 2, "replace")
-gene(1, 11, "down", 2, "replace")
-gene(1, 11, "up", 2, "replace")
-gene(1, -1, "none", 4, "replace")
-gene(2, -1, "none", 3, "replace")
-gene(4, -1, "none", 5, "replace")
-
-data[0][0][0].value = 1
-data[0][1][1].value = 11
-data[0][1][2].value = 11
-data[0][1][3].value = 11
-data[0][2][1].value = 11
-data[0][2][2].value = 11
-data[0][2][3].value = 11
-*/
-
-/*/ The Rows
-
-gene(1, 11, "right", 2, "replace")
-gene(1, -1, "none", 1, "down")
-gene(1, -1, "none", 1, "right")
-gene(1, 2, "right", -1, "replace")
-gene(3, -1, "none", 3, "left")
-gene(2, -1, "none", 3, "replace")
-
-data[0][1][0].value = 1
-data[0][0][0].value = 11
-data[0][0][1].value = 11
-data[0][0][2].value = 11
-data[0][0][3].value = 11
-data[0][0][4].value = 11
-data[0][3][0].value = 11
-data[0][3][1].value = 11
-data[0][3][2].value = 11
-data[0][3][3].value = 11
-data[0][3][4].value = 11
-
-decodeSolution("B03132B0B03132B0B03132B0B03132B0B03132B0")
-*/
-
-/*/ The Delete Test
-
-gene(1, 11, "down", 2, "replace")
-gene(1, 2, "down", 2, "replace")
-gene(1, 11, "up", 1, "right")
-gene(1, -1, "none", 1, "down")
-gene(1, 11, "up", -1, "replace")
-gene(2, -1, "none", 2, "up")
-gene(2, -1, "none", 3, "replace")
-
-
-data[0][0][1].value = 1
-data[0][0][0].value = 11
-data[0][1][0].value = 11
-data[0][2][0].value = 11
-data[0][3][0].value = 11
-data[0][0][4].value = 11
-data[0][1][4].value = 11
-data[0][2][4].value = 11
-data[0][3][4].value = 11
-
-decodeSolution("B0B0B0B0343434343C3C3C3C38383838B0B0B0B0")
-*/
-
-/*/ The New One
-
-gene(1, -1, "none", 1, "right")
-gene(1, 0, "right", 4, "replace")
-gene(1, 4, "right", 2, "replace")
-gene(1, 2, "right", 4, "replace")
-gene(4, -1, "none", 4, "up")
-gene(2, -1, "none", 2, "down")
-gene(2, -1, "none", 2, "right")
-gene(4, -1, "none", -2, "down")
-gene(2, -1, "none", -2, "left")
-gene(2, -1, "none", 3, "replace")
-gene(4, -1, "none", 5, "replace")
-
-data[0][0][3].value = 1
-data[0][1][0].value = 11
-data[0][1][1].value = 11
-data[0][3][0].value = 11
-
-decodeSolution("00B000B000B000540054005C355F375E393B3B3A")
-*/
-
-//decodeSolution("MTXXXX-F1XXXR-F1XXLX-MTXXXX-MTXXXX-F1XXXR-F1XXLX-MTXXXX-MTXXXX-F1XXXR-F1XXLX-MTXXXX-MTXXXX-F1XXXR-F1XXLX-MTXXXX-MTXXXX-F1XXXR-F1XXLX-MTXXXX")
-
-decodeSolution("")
-
-run_simulation()
-display_preview()
+function importLevel() {
+	levelCode = prompt("Enter a level code here: ", "")
+	if (levelCode != null && levelCode != "") {
+		decodeSolution(levelCode)
+	}
+	run_simulation()
+	display_preview()
+}
