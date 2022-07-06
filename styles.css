@@ -162,3 +162,22 @@ body {
 	background-color: black;
 	padding: 12px;
 }
+
+@keyframes fadeOut {
+	0% {opacity: 1;}
+	10% {opacity: 0;}
+	20% {opacity: 1;}
+	30% {opacity: 0;}
+	40% {opacity: 1;}
+	50% {opacity: 0;}
+	60% {opacity: 1;}
+	100% {opacity: 0;}
+}
+
+.fadeOut {
+	animation-name: fadeOut;
+	animation-duration: 4s;
+	background-image: url('images/import.png');
+	background-repeat: no-repeat;
+	animation-fill-mode: forwards;
+}

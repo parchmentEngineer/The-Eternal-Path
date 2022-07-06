@@ -73,7 +73,10 @@ for (let i=0; i<7; i++) {
 	elem.innerHTML += '<div class="moveArrowLeft" style="top: 407px; left: '+(152+(111*i))+'px;" onClick=" moveLeft('+((i*2)+2)+')"></div>'
 }
 
+elem.innerHTML += '<div class="fadeOut" style="top: 357px; left: 911px; position: absolute; width: 20px; height: 41px;"></div>'
 elem.innerHTML += '<div class="import" style="top: 357px; left: 911px; position: absolute; width: 20px; height: 41px;" onClick="importLevel()"></div>'
+
+
 
 nameString = "XXX0B0B1F0F1F2F3S0S1S2MT"
 genes = []
@@ -87,8 +90,8 @@ selectedNeighborDir = "none"
 selectGene(0)
 setNeighborDir("none")
 //levelCode = 'MTXXXX-XXXXXX-XXXXXX-XXXXXX-F1XXXR-F1XXLR-F1XXLR-B1XXLX-XXXXXX-XXXXXX-XXXXXX-XXXXXX-F1XXXR-F1XXLR-F1XXLR-B1XXLX-MTXXXX-XXXXXX-XXXXXX-XXXXXX'
-levelCode = "MTXXXX-XXXXXX-XXXXXX-XXXXXX-XXXXXX-XXXXXX-MTXXXX-XXXXXX-XXXXXX-XXXXXX-XXXXXX-XXXXXX-XXXXXX-XXXXXX-XXXXXX-XXXXXX-XXXXXX-XXXXXX-XXXXXX-MTXXXX"
-levelCode = "F0XDXR-F0XXLX-MTXXXX-MTXXXX-F0UDXX-MTXXXX-MTXXXX-MTXXXX-F0UXXR-F0XXLR-F0XDLX-MTXXXX-MTXXXX-MTXXXX-F0UDXR-F0XXLX-MTXXXX-F0XXXR-F0UXLX-MTXXXX"
+levelCode = "XXXXXX-XXXXXX-XXXXXX-XXXXXX-XXXXXX-XXXXXX-XXXXXX-XXXXXX-XXXXXX-XXXXXX-XXXXXX-XXXXXX-XXXXXX-XXXXXX-XXXXXX-XXXXXX-XXXXXX-XXXXXX-XXXXXX-XXXXXX"
+//levelCode = "F0XDXR-F0XXLX-MTXXXX-MTXXXX-F0UDXX-MTXXXX-MTXXXX-MTXXXX-F0UXXR-F0XXLR-F0XDLX-MTXXXX-MTXXXX-MTXXXX-F0UDXR-F0XXLX-MTXXXX-F0XXXR-F0UXLX-MTXXXX"
 
 
 /*/ The Worm
