@@ -27,6 +27,8 @@
 	background-repeat: no-repeat;
 	
 	position: relative;
+	
+	user-select: none;
 }
 
 .imagePreview {

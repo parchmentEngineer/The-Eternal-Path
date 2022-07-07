@@ -25,7 +25,7 @@ for (let i=0; i<13; i++) {
 geneSelX = [12 , 69 , 123, 180, 234, 291, 345, 402, 456, 513, 567, 624, 678, 735, 789, 846]
 geneSelY = [355, 484, 355, 484, 355, 484, 355, 484, 355, 484, 355, 484, 355, 484, 355, 484]
 for (let i=0; i<16; i++) {
-	elem.innerHTML += '<div class="geneSelector" id="geneSelector'+i+'" style="top: '+geneSelY[i]+'px; left: '+geneSelX[i]+'px;" onClick="selectGene('+i+')"></div>'
+	elem.innerHTML += '<div class="geneSelector" id="geneSelector'+i+'" style="top: '+geneSelY[i]+'px; left: '+geneSelX[i]+'px;" onClick="selectGene('+i+')" oncontextmenu="clearGene('+i+'); return false;"></div>'
 }
 elem.innerHTML += '<div class="arrow" id="arrow-up" style="top: -20px; left: 11px; background-image: url(\'images/arrow-up.png\');" onClick="moveStart(-1,0)"></div>'
 elem.innerHTML += '<div class="arrow" id="arrow-down" style="top: 36px; left: 11px; background-image: url(\'images/arrow-down.png\');" onClick="moveStart(1,0)"></div>'

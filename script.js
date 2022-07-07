@@ -449,6 +449,20 @@ function selectGene(num) {
 	display_preview();
 }
 
+function clearGene(num) {
+	if (num == selectedGene) {
+		selectGene(num)
+		document.getElementById("cellSelector"+genes[num].target).classList.remove("cellSelected")
+		document.getElementById("reactionSelector-"+genes[num].reaction).classList.remove("reactionSelected")
+	}
+	genes[num] = new Gene(0,0,"none",0,"none","ignore")
+	document.getElementById("cellSelector"+genes[num].target).classList.add("cellSelected")
+	document.getElementById("reactionSelector-"+genes[num].reaction).classList.add("reactionSelected")
+	
+	run_simulation()
+	display_preview()
+}
+
 function selectTargetCell(num) {
 	gene = genes[selectedGene]
 	
